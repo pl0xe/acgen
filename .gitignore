@@ -163,4 +163,4 @@ cython_debug/
 
 nurburgring/
 servers/
-./run.sh
+run.sh

@@ -41,10 +41,73 @@ def createServerDirectory() -> str:
 
     return fullpath
 
+def setTimeOfDay(serverCfgIniPath: str) -> None:
+        
+        # parse cmdline input
+        try:
+            s = acutil.args.time_of_day.split(':')
+            hour = int(s[0])
+            minutes = int(s[1])
+        except Exception as e:
+            acutil.logger.warning('failed to parse time')
+            return
+            
+        # caluclate sun angle ( represents time of day )
+        sunAngle = 16*((hour*3600)+(minutes*60)-46800)/(50400-46800)
+        acutil.logger.info('setting sun angle to %i' % sunAngle)
+
+        # set to config file
+        data = None
+        with open(serverCfgIniPath, 'r') as f:
+            data = f.read()
+
+        # find and replace old config line
+        for line in data:
+            if 'SUN_ANGLE' in line:
+                data = data.replace(line, f'SUN_ANGLE={sunAngle}')
+                acutil.logger.info('sun angle set')
+                return
+        acutil.logger.warning('could not set time of day')
+
+def setConfigParams(serverDirectory: str) -> None:
+
+    extraCfgPath = os.path.abspath(os.path.join(serverDirectory, 'cfg/extra_cfg.yml'))
+    serverCfgIniPath = os.path.abspath(os.path.join(serverDirectory, 'cfg/server_cfg.ini'))
+
+    # https://assettoserver.org/docs/common-configuration-errors/#missing-car-checksums
+    # disable car checksums
+    data = None
+    with open(extraCfgPath, 'r') as f:
+        data = f.read()
+
+    data = data.replace('MissingCarChecksums: false', 'MissingCarChecksums: true')
+    data = data.replace('EnableWeatherFx: false', 'EnableWeatherFx: true')
+    acutil.logger.info('set MissingCarChecksums to true')
+    acutil.logger.info('set EnableWeatherFx to true')
+    
+    with open(extraCfgPath, 'w') as f:
+        acutil.logger.info('applying setting to config file')
+        f.write(data)
+
+    # set time of day
+    if acutil.args.time_of_day:
+        setTimeOfDay(serverCfgIniPath)
+
+def createCSPExtraOpts(serverDirectory):
+    
+    '''creates the csp_extra_options.ini file and sets all the options there.
+    by default allows driving the wrong way on the track.'''
+
+    cspOptsPath = os.path.abspath(f'{serverDirectory}/cfg/csp_extra_options.ini')
+    acutil.logger.debug('cspOptsPath %s' % cspOptsPath)
+    s = '[EXTRA_RULES]\nALLOW_WRONG_WAY = 1'
+    with open(cspOptsPath, 'w') as f:
+        f.write(s)
+        acutil.logger.info('created %s' % cspOptsPath)
+
 def main():
 
     ''' main entry for script '''
-
     serverDirectory = createServerDirectory()
     assettoServerTarFilePath = os.path.abspath(os.path.join(serverDirectory, 'assettoserver.tar.gz'))
     serverPackTarFilePath = os.path.abspath(os.path.join(serverDirectory, 'serverpack.tar.gz'))
@@ -76,19 +139,7 @@ def main():
             process.terminate()
             break
 
-    # https://assettoserver.org/docs/common-configuration-errors/#missing-car-checksums
-    # disable car checksums
-    extraCfgPath = os.path.abspath(os.path.join(serverDirectory, 'cfg/extra_cfg.yml'))
-    data = None
-    with open(extraCfgPath, 'r') as f:
-        data = f.read()
-
-    data = data.replace('MissingCarChecksums: false', 'MissingCarChecksums: true')
-    acutil.logger.info('set MissingCarChecksums to true')
-    
-    with open(extraCfgPath, 'w') as f:
-        acutil.logger.info('applying setting to config file')
-        f.write(data)
+    setConfigParams(serverDirectory)
 
     acutil.logger.info('success creating %s' % serverDirectory)
 

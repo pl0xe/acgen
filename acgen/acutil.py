@@ -3,7 +3,6 @@ import logging
 import argparse
 import requests
 import tarfile
-
 from paramiko import SSHClient
 from scp import SCPClient
 
@@ -20,19 +19,18 @@ parser.add_argument('serverName',
                     help='directory name to save server files too.'
                     'can not be a full path, just a name.')
 
-parser.add_argument
-
 parser.add_argument('-s',
                     '--server', 
                     type=str,
                     required=True,
-                    help='ex: user@192.168.0.2:~/Desktop/server.tar.gz') 
+                    help='ssh server to download the assetto server pack created from content manager ex: 192.168.0.2') 
 
 parser.add_argument('-l',
                     '--location',
-                    help='location on the system where the file is stored at.\n'
-                    'if file is on users desktop ex: Desktop/server.tar.gz',
-                    default='Desktop/server.tar.gz')
+                    help='location on the system where the file is stored at. Watch out for windows paths if you are not using powershell as default shell\n'
+                    'ex linux: ~/Desktop/server.tar.gz\n'
+                    'ex windows: Desktop\\server.tar.gz',
+                    default='./Desktop/server.tar.gz')
 
 parser.add_argument('-u',
                     '--username',
@@ -42,7 +40,7 @@ parser.add_argument('-u',
 parser.add_argument('-p',
                     '--password',
                     default=None,
-                    help='ssh password')
+                    help='ssh password, wrap password in single qoutes \'password!\' to avoid any weird bash string interpolations')
 
 # default v0.0.54 for download
 parser.add_argument('-g', 
@@ -50,6 +48,11 @@ parser.add_argument('-g',
                     type=str, 
                     default='https://github.com/compujuckel/AssettoServer/releases/download/v0.0.54/assetto-server-linux-x64.tar.gz',
                     help='direct download link for the assetto service tar.gz file')
+
+parser.add_argument('--time-of-day',
+                    type=str,
+                    default=None,
+                    help='set time of day HH:MM')
 
 args = parser.parse_args()
 

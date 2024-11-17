@@ -31,8 +31,12 @@ options:
   -s SERVER, --server SERVER
                         ssh server to download the assetto server pack created from content manager ex: 192.168.0.2
   -l LOCATION, --location LOCATION
-                        location on the system where the file is stored at. Watch out for windows paths if you are not using powershell as default shell ex linux: ~/Desktop/server.tar.gz ex
-                        windows: Desktop\server.tar.gz
+                        location on the system where the file is stored at. Watch out for windows paths if you are not using powershell as default shell 
+                        
+                        ex linux: ~/Desktop/server.tar.gz 
+
+                        ex windows: Desktop/server.tar.gz
+
   -u USERNAME, --username USERNAME
                         ssh username
   -p PASSWORD, --password PASSWORD

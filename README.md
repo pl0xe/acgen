@@ -1,4 +1,8 @@
 # acgen.py
+Useful if you use the assetto corsa content manager to build your server. But you don't want
+to manually scp your tar.gz file over to your linux server and then add the AssettoServer
+executables into your server directory. Then configure some configs to get the server to start
+running.
 
 tool to help autogenerate assetto corsa servers.
 
